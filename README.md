@@ -20,6 +20,11 @@ The Food Delivery App is built using Node.js, Express, and MongoDB. It allows ve
 - MongoDB
 - Swagger for API Documentation
 
+## API Documentation
+
+Explore the API documentation for the Food Delivery App: [API Documentation](https://food-app-y9ra.onrender.com/api-docs/)
+
+
 ## Getting Started
 
 To run the application locally, follow these steps:

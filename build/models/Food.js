@@ -24,31 +24,23 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const VendorSchema = new mongoose_1.Schema({
+const FoodSchema = new mongoose_1.Schema({
+    vendorId: { type: String, required: true },
     name: { type: String, required: true },
-    ownerName: { type: String, required: true },
-    foodType: { type: [String], required: true },
-    pincode: { type: String, required: true },
-    address: { type: String, required: true },
-    phone: { type: String, required: true },
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-    salt: { type: String, required: true },
-    serviceAvailable: { type: Boolean, default: false },
-    coverImages: { type: [String], required: true },
-    rating: { type: Number, required: true },
-    foods: [{ type: mongoose_1.default.SchemaTypes.ObjectId, ref: "food" }],
+    description: { type: String, required: true },
+    category: { type: String },
+    foodType: { type: String, required: true },
+    readyTime: { type: Number },
+    price: { type: Number, required: true },
+    rating: { type: Number, default: 0 },
+    images: { type: [String], default: [] },
 }, {
-    timestamps: true,
     toJSON: {
-        transform(doc, ret, options) {
-            delete ret.password;
-            delete ret.salt;
-            delete ret.__v;
-            delete ret.createdAt;
-            delete ret.updatedAt;
+        transform(doc, ret) {
+            delete ret.__v, delete ret.createdAt, delete ret.updatedAt;
         },
     },
+    timestamps: true,
 });
-const VendorModel = mongoose_1.default.model("Vendor", VendorSchema);
-exports.default = VendorModel;
+const FoodModel = mongoose_1.default.model("food", FoodSchema);
+exports.default = FoodModel;

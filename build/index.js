@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+const swagger_1 = __importDefault(require("./utility/swagger"));
 const routes_1 = require("./routes");
 const Database_1 = __importDefault(require("./services/Database"));
 dotenv_1.default.config();
@@ -15,6 +17,7 @@ const PORT = process.env.DEV_PORT || 4002;
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.default));
 app.use("/admin", routes_1.AdminRoute);
 app.use("/vendor", routes_1.VendorRoute);
 app.listen(PORT, () => {

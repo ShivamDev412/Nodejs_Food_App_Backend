@@ -8,4 +8,8 @@ export const ENDPOINTS = {
   LOGIN: "/login",
   VENDOR_PROFILE: "/profile",
   UPDATE_SERVICES: "/update-service",
+  UPDATE_VENDOR_PROFILE: "/update-profile",
+  FOOD: "/food",
+  FOOD_BY_ID: "/food/:id",
+  FOODS: "/foods"
 };

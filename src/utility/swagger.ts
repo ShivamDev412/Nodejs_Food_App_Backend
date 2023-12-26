@@ -1,6 +1,6 @@
 import swaggerJsDoc from "swagger-jsdoc";
 const options = {
-  apis: ["./src/routes/*.ts"],
+  apis: ["./routes/*.ts"],
   definition: {
     openapi: "3.0.0",
     info: {
@@ -10,10 +10,10 @@ const options = {
     },
     servers: [
       {
-        url: "https://food-app-y9ra.onrender.com",
+        url: "https://food-app-y9ra.onrender.com/api",
       },
       {
-        url:"http://localhost:4002"
+        url:"http://localhost:4002/api"
       }
     ],
   },

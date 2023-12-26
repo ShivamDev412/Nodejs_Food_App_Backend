@@ -13,3 +13,8 @@ export const ENDPOINTS = {
   FOOD_BY_ID: "/food/:id",
   FOODS: "/foods"
 };
+export const BASE_ROUTE = {
+  VENDOR: "/api/vendor",
+  ADMIN: "/api/admin",
+  SHOPPING: "/api/shopping"
+}

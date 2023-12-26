@@ -1,23 +1,39 @@
 import express from "express";
 import dotenv from "dotenv";
-import cookieParser from "cookie-parser";
 import swaggerUI from "swagger-ui-express";
-import specs from "./utility/swagger";
-import { AdminRoute, VendorRoute } from "./routes";
+import swaggerJsDoc from "swagger-jsdoc";
 import connectDB from "./services/Database";
+import App from "./services/ExpressApp";
 dotenv.config();
-const app = express();
-
-const PORT = process.env.DEV_PORT || 4002;
-connectDB();
-
-app.use(express.json());
-app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
-app.use("/admin", AdminRoute);
-app.use("/vendor", VendorRoute);
-app.listen(PORT, () => {
-  console.clear();
-  console.log(`listening on port:${PORT}`);
-});
+const swaggerOptions = {
+  apis: ["./routes/*.ts"],
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Food Delivery API",
+      version: "1.0.0",
+      description: "Food Delivery backend API using Express",
+    },
+    servers: [
+      {
+        url: "https://food-app-y9ra.onrender.com",
+      },
+      {
+        url: "http://localhost:4002",
+      },
+    ],
+  },
+};
+const specs = swaggerJsDoc(swaggerOptions);
+const startServer = async () => {
+  const app = express();
+  const PORT = process.env.DEV_PORT || 4002;
+  app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+  await App(app);
+  connectDB();
+  app.listen(PORT, () => {
+    console.clear();
+    console.log(`listening on port:${PORT}`);
+  });
+};
+startServer();

@@ -17,6 +17,7 @@ export interface VendorSignUpInput {
     password:string
 }
 export interface EditVendorInput {
+    email:string,
     name:string,
     address:string,
     phone:string,

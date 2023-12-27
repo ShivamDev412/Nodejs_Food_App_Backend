@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { EditVendorInput, VendorLoginInput } from "../dto/Vendor.dto";
 import VendorModel from "../models/Vendor";
 import {
+  GeneratePassword,
+  GenerateSalt,
   ValidatePassword,
   generateSignature,
 } from "../utility/PasswordUtility";
@@ -39,7 +41,9 @@ export const Login = async (
           data: isVendorExist,
         });
       } else {
-        res.status(400).json({ success: false, message: "Password did not match" });
+        res
+          .status(400)
+          .json({ success: false, message: "Password did not match" });
       }
     } else {
       res.status(404).json({
@@ -92,13 +96,14 @@ export const updateVendorProfile = async (
   next: NextFunction
 ) => {
   try {
-    const { name, address, foodType, phone } = req.body as EditVendorInput;
+    const { email, name, address, foodType, phone } =
+      req.body as EditVendorInput;
     const user = req.user;
 
     if (user) {
       const updatedVendor = await VendorModel.findByIdAndUpdate(
         user._id,
-        { name, address, foodType, phone },
+        { email, name, address, foodType, phone },
         { new: true }
       );
 
@@ -124,7 +129,73 @@ export const updateVendorProfile = async (
     next(error);
   }
 };
-
+export const changeVendorPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { oldPassword, newPassword } = req.body;
+  const user = req.user;
+  try {
+    if (user) {
+      if (!oldPassword || !newPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Please provide old and new passwords",
+        });
+      }
+      if (oldPassword === newPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Old and new passwords cannot be the same",
+        });
+      }
+      const vendor = await VendorModel.findById(user._id);
+      if (vendor) {
+        const validation = await ValidatePassword(
+          oldPassword,
+          vendor.password,
+          vendor.salt
+        );
+        if (validation) {
+          const hashedPassword = await GeneratePassword(
+            newPassword,
+            vendor.salt
+          );
+          const updatedVendor = await VendorModel.findByIdAndUpdate(
+            user._id,
+            { password: hashedPassword },
+            { new: true }
+          );
+          if (updatedVendor) {
+            res.status(200).json({
+              success: true,
+              message: "Password updated successfully",
+              data: updatedVendor,
+            });
+          } else {
+            res.status(404).json({
+              success: false,
+              message: "Vendor not found",
+            });
+          }
+        } else {
+          res.status(400).json({
+            success: false,
+            message: "Old password did not match",
+          });
+        }
+      } else {
+        res.status(404).json({
+          success: false,
+          message: "Vendor not found",
+        });
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 export const updateVendorServices = async (
   req: Request,
   res: Response,

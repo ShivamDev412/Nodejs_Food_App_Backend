@@ -23,7 +23,7 @@ exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
     app.use((0, cookie_parser_1.default)());
     app.use(express_1.default.urlencoded({ extended: true }));
     app.use(endpoints_1.BASE_ROUTE.ADMIN, AdminRoutes_1.AdminRoute);
-    app.use(endpoints_1.BASE_ROUTE.SHOPPING, VendorRoutes_1.VendorRoute);
+    app.use(endpoints_1.BASE_ROUTE.VENDOR, VendorRoutes_1.VendorRoute);
     app.use(endpoints_1.BASE_ROUTE.SHOPPING, ShoppoingRoutes_1.ShoppingRoute);
     return app;
 });

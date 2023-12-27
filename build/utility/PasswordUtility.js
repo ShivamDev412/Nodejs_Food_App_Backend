@@ -30,7 +30,7 @@ const ValidatePassword = (password, savedPassword, salt) => __awaiter(void 0, vo
 });
 exports.ValidatePassword = ValidatePassword;
 const generateSignature = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    return jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET, { expiresIn: "1m" });
+    return jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET, { expiresIn: "30d" });
 });
 exports.generateSignature = generateSignature;
 const validateSignature = (req) => __awaiter(void 0, void 0, void 0, function* () {

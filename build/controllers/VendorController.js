@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.editFood = exports.updateVendorProfilePic = exports.getFoods = exports.addFood = exports.updateVendorServices = exports.updateVendorProfile = exports.getVendorProfile = exports.Login = void 0;
+exports.editFood = exports.updateVendorProfilePic = exports.getFoods = exports.addFood = exports.updateVendorServices = exports.changeVendorPassword = exports.updateVendorProfile = exports.getVendorProfile = exports.Login = void 0;
 const Vendor_1 = __importDefault(require("../models/Vendor"));
 const PasswordUtility_1 = require("../utility/PasswordUtility");
 const Food_1 = __importDefault(require("../models/Food"));
@@ -36,7 +36,9 @@ const Login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
                 });
             }
             else {
-                res.status(400).json({ success: false, message: "Password did not match" });
+                res
+                    .status(400)
+                    .json({ success: false, message: "Password did not match" });
             }
         }
         else {
@@ -84,10 +86,10 @@ const getVendorProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 exports.getVendorProfile = getVendorProfile;
 const updateVendorProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, address, foodType, phone } = req.body;
+        const { email, name, address, foodType, phone } = req.body;
         const user = req.user;
         if (user) {
-            const updatedVendor = yield Vendor_1.default.findByIdAndUpdate(user._id, { name, address, foodType, phone }, { new: true });
+            const updatedVendor = yield Vendor_1.default.findByIdAndUpdate(user._id, { email, name, address, foodType, phone }, { new: true });
             if (updatedVendor) {
                 res.status(200).json({
                     success: true,
@@ -114,6 +116,63 @@ const updateVendorProfile = (req, res, next) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.updateVendorProfile = updateVendorProfile;
+const changeVendorPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { oldPassword, newPassword } = req.body;
+    const user = req.user;
+    try {
+        if (user) {
+            if (!oldPassword || !newPassword) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Please provide old and new passwords",
+                });
+            }
+            if (oldPassword === newPassword) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Old and new passwords cannot be the same",
+                });
+            }
+            const vendor = yield Vendor_1.default.findById(user._id);
+            if (vendor) {
+                const validation = yield (0, PasswordUtility_1.ValidatePassword)(oldPassword, vendor.password, vendor.salt);
+                if (validation) {
+                    const hashedPassword = yield (0, PasswordUtility_1.GeneratePassword)(newPassword, vendor.salt);
+                    const updatedVendor = yield Vendor_1.default.findByIdAndUpdate(user._id, { password: hashedPassword }, { new: true });
+                    if (updatedVendor) {
+                        res.status(200).json({
+                            success: true,
+                            message: "Password updated successfully",
+                            data: updatedVendor,
+                        });
+                    }
+                    else {
+                        res.status(404).json({
+                            success: false,
+                            message: "Vendor not found",
+                        });
+                    }
+                }
+                else {
+                    res.status(400).json({
+                        success: false,
+                        message: "Old password did not match",
+                    });
+                }
+            }
+            else {
+                res.status(404).json({
+                    success: false,
+                    message: "Vendor not found",
+                });
+            }
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.changeVendorPassword = changeVendorPassword;
 const updateVendorServices = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { serviceAvailable } = req.body;

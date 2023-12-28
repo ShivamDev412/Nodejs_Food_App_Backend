@@ -17,6 +17,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const AdminRoutes_1 = require("../routes/AdminRoutes");
 const VendorRoutes_1 = require("../routes/VendorRoutes");
 const ShoppoingRoutes_1 = require("../routes/ShoppoingRoutes");
+const UserRoutes_1 = require("../routes/UserRoutes");
 const endpoints_1 = require("../utility/endpoints");
 exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
     app.use(express_1.default.json());
@@ -25,5 +26,6 @@ exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
     app.use(endpoints_1.BASE_ROUTE.ADMIN, AdminRoutes_1.AdminRoute);
     app.use(endpoints_1.BASE_ROUTE.VENDOR, VendorRoutes_1.VendorRoute);
     app.use(endpoints_1.BASE_ROUTE.SHOPPING, ShoppoingRoutes_1.ShoppingRoute);
+    app.use(endpoints_1.BASE_ROUTE.USER, UserRoutes_1.UserRoute);
     return app;
 });

@@ -21,9 +21,16 @@ exports.ENDPOINTS = {
     FOOD_IN_30_MINUTE: "/food-in-30-min/:pincode",
     SEARCH_FOOD: "/search/:pincode",
     RESTAURANT_BY_ID: "/restaurant/:id",
+    // * User
+    SIGNUP: "/signup",
+    LOGIN_USER: "/login",
+    VERIFY_ACCOUNT_LOGIN: "/verify-account",
+    RESEND_OTP: "/resend-otp",
+    USER_PROFILE: "/profile"
 };
 exports.BASE_ROUTE = {
     VENDOR: "/api/vendor",
     ADMIN: "/api/admin",
     SHOPPING: "/api/shopping",
+    USER: "/api/user",
 };

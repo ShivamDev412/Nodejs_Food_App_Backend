@@ -41,7 +41,7 @@ const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     };
     const specs = (0, swagger_jsdoc_1.default)(swaggerOptions);
     const app = (0, express_1.default)();
-    const PORT = process.env.DEV_PORT || 4002;
+    const PORT = process.env.PORT || 4002;
     yield (0, ExpressApp_1.default)(app);
     app.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(specs));
     (0, Database_1.default)();

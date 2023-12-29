@@ -29,7 +29,7 @@ const startServer = async () => {
   };
   const specs = swaggerJsDoc(swaggerOptions);
   const app = express();
-  const PORT = process.env.DEV_PORT || 4002;
+  const PORT = process.env.PORT || 4002;
   await App(app);
   app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 

@@ -1,15 +1,20 @@
 {
-  "name": "advnode",
+  "name": "node_food_app",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run build && node build/index.js",
+    "start": "node dist/index.js",
     "start:dev": "npx nodemon",
-    "build": "rimraf ./build && tsc"
+    "build":"tsc -p .",
+    "postinstall": "npm run build"
+  },
+  "engines": {
+    "node": "20.x",
+    "npm":"10.1.0"
   },
   "keywords": [],
-  "author": "",
+  "author": "Shivam Singh",
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -20,7 +25,6 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
     "nodemon": "^3.0.2",
-    "rimraf": "^5.0.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },

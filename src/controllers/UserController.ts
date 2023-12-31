@@ -4,6 +4,7 @@ import {
   CreateCustomerInput,
   EditCustomerInput,
   LoginCustomerInput,
+  OrderInputs,
   ResendOtpInput,
 } from "../dto/User.dto";
 import { validate } from "class-validator";
@@ -16,6 +17,9 @@ import {
 } from "../utility/PasswordUtility";
 import { generateOtp, onRequestOtp } from "../utility/NotificationUtility";
 import VendorModel from "../models/Vendor";
+import FoodModel from "../models/Food";
+import OrderModel from "../models/Order";
+import mongoose from "mongoose";
 
 export const signup = async (
   request: Request,
@@ -58,6 +62,7 @@ export const signup = async (
       verified: false,
       lat: 0,
       lng: 0,
+      orders: [],
     });
 
     if (user) {
@@ -243,6 +248,226 @@ export const editUserProfile = async (
         message: "User profile updated successfully",
         data: user,
       });
+    } else {
+      return response.status(400).json({
+        success: false,
+        message: "Unauthorized user",
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+export const createOrder = async (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = request.user;
+    const cart = request.body as OrderInputs[];
+    const user = await UserModel.findById(userId);
+
+    if (user) {
+      const orderId = new mongoose.Types.ObjectId();
+
+      const foodIdsInCart = cart.map((item) => item._id);
+      const foods = await FoodModel.find({
+        _id: { $in: foodIdsInCart },
+      }).exec();
+
+      let cartItems = foods.map((food) => ({
+        ...food.toObject(),
+        food: food._id,
+        unit: cart.find((item) => item._id === food._id.toString())?.unit || 0,
+      }));
+
+      const netAmount = cartItems.reduce(
+        (total, item) => total + item.price * item.unit,
+        0
+      );
+
+      if (cartItems.length > 0) {
+        const currentOrder = await OrderModel.create({
+          orderId,
+          items: cartItems,
+          totalAmount: netAmount,
+          paidThrough: "COD",
+          paymentResponse: "",
+          orderStatus: "pending",
+          orderDate: new Date(),
+        });
+
+        if (currentOrder) {
+          user.orders.push(currentOrder);
+          await user.save();
+
+          return response.status(200).json({
+            success: true,
+            message: "Order created successfully",
+            data: currentOrder,
+          });
+        }
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+export const getOrders = async (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = request.user;
+    const user = await UserModel.findById(userId).populate("orders");
+    if (user) {
+      return response.status(200).json({
+        success: true,
+        message: "Orders fetched successfully",
+        data: user.orders,
+      });
+    } else {
+      return response.status(400).json({
+        success: false,
+        message: "Unauthorized user",
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+export const getOrderById = async (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
+  try {
+    const orderId = request.params.id;
+    const order = await OrderModel.findById(orderId).populate("items.food");
+    return response.status(200).json({
+      success: true,
+      message: "Order fetched successfully",
+      data: order,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export const addToCart = async (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = request.user;
+    const { _id, unit } = request.body as OrderInputs;
+
+    if (unit <= 0) {
+      return response.status(400).json({
+        success: false,
+        message: "Unit should be greater than 0",
+      });
+    }
+
+    let cartItems = [];
+    const food = await FoodModel.findById(_id);
+
+    if (food) {
+      const user = await UserModel.findById(userId).populate("cart.food");
+
+      if (user) {
+        cartItems = user.cart || [];
+
+        // Check if food already exists in the cart for the user. If it does, update the unit.
+        const existingFoodItemIndex = cartItems.findIndex(
+          (item) => item.food?._id.toString() === _id
+        );
+
+        if (existingFoodItemIndex !== -1) {
+          cartItems[existingFoodItemIndex] = {
+            food,
+            unit,
+          };
+        } else {
+          // If food does not exist in the cart, add it.
+          cartItems.push({
+            food,
+            unit,
+          });
+        }
+
+        user.cart = cartItems;
+        const cartResult = await user.save();
+
+        return response.status(200).json({
+          success: true,
+          message: "Item added to cart successfully",
+          data: cartResult.cart,
+        });
+      } else {
+        return response.status(400).json({
+          success: false,
+          message: "Unauthorized user",
+        });
+      }
+    } else {
+      return response.status(404).json({
+        success: false,
+        message: "Food not found",
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+export const getCart = async (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = request.user;
+    const user = await UserModel.findById(userId).populate("cart.food");
+    if (user) {
+      return response.status(200).json({
+        success: true,
+        message: "Cart fetched successfully",
+        data: user.cart,
+      });
+    } else {
+      return response.status(400).json({
+        success: false,
+        message: "Unauthorized user",
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+export const deleteCart = async (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = request.user;
+    const user = await UserModel.findById(userId);
+    if (user) {
+      if (user.cart.length) {
+        user.cart = [] as any;
+        await user.save();
+        return response.status(200).json({
+          success: true,
+          message: "Cart cleared successfully",
+        });
+      } else {
+        return response.status(400).json({
+          success: false,
+          message: "Cart is already empty",
+        });
+      }
     } else {
       return response.status(400).json({
         success: false,

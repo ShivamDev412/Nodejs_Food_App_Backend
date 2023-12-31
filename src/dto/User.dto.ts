@@ -37,3 +37,7 @@ export interface EditCustomerInput {
   lastName: string;
   address: string;
 }
+export interface  OrderInputs {
+  _id: string;
+  unit: number;
+}

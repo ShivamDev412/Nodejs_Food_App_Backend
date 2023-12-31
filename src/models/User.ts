@@ -1,4 +1,5 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
+import { OrderType } from "./Order";
 
 interface UserType extends Document {
   email: string;
@@ -13,6 +14,8 @@ interface UserType extends Document {
   otp_expiry: Date;
   lat: number;
   lng: number;
+  orders: [OrderType];
+  cart: [any];
 }
 
 const UserSchema: Schema = new Schema(
@@ -29,6 +32,24 @@ const UserSchema: Schema = new Schema(
     otp_expiry: { type: Date, required: true },
     lat: { type: Number },
     lng: { type: Number },
+    orders: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "order",
+      },
+    ],
+    cart: [
+      {
+        food: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "food",
+        },
+        unit: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

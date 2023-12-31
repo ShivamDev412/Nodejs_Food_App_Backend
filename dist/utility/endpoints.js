@@ -26,7 +26,11 @@ exports.ENDPOINTS = {
     LOGIN_USER: "/login",
     VERIFY_ACCOUNT_LOGIN: "/verify-account",
     RESEND_OTP: "/resend-otp",
-    USER_PROFILE: "/profile"
+    USER_PROFILE: "/profile",
+    CREATE_ORDER: "/create-order",
+    ORDERS: "/orders",
+    ORDER_BY_ID: "/order/:id",
+    CART: "/cart",
 };
 exports.BASE_ROUTE = {
     VENDOR: "/api/vendor",
